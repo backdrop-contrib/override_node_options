@@ -11,47 +11,162 @@
  * Implementation of hook_perm().
  */
 function override_node_options_perm() {
-  return array('override node publishing options');
+  return array('Display published option','Display promote to front page option','Display sticky option','Display revision option','Display authored on option');
+}
+
+function override_node_options_menu() {
+  $items = array();
+  $items['admin/settings/override_node_options'] = array(
+    'title' => t('Override node options'),
+    'description' => t('Allow non-admins to override the default publishing options for nodes they can edit'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('override_node_options_admin_settings'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+     return $items;
+}
+
+function override_node_options_admin_settings() {
+	    if(module_exists(upload)){
+	    $form['attachments'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('File attachments'),
+        '#description' => t('Options for the File attachments fieldset on the node form.'),
+         );
+
+	    $form['attachments']['override_node_options_facollapsible'] = array(
+		'#type' => 'checkbox',
+		'#title' => t('File attachments collapsible'),
+		'#default_value' => variable_get('override_node_options_facollapsible', 1),
+		);
+		$form['attachments']['override_node_options_facollapsed'] = array(
+		'#type' => 'checkbox',
+		'#title' => t('File attachments collapsed by default'),
+		'#default_value' => variable_get('override_node_options_facollapsed', 1),
+		);
+	    }
+		if(module_exists(scheduler)){
+		$form['scheduler_settings'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Scheduler settings'),
+        '#description' => t('Options for the Scheduler settings fieldset on the node form.'),
+         );
+
+	    $form['scheduler_settings']['override_node_options_sscollapsible'] = array(
+		'#type' => 'checkbox',
+		'#title' => t('Scheduler settings collapsible'),
+		'#default_value' => variable_get('override_node_options_sscollapsible', 1),
+		);
+		$form['scheduler_settings']['override_node_options_sscollapsed'] = array(
+		'#type' => 'checkbox',
+		'#title' => t('Scheduler settings collapsed by default'),
+		'#default_value' => variable_get('override_node_options_sscollapsed', 1),
+		);
+		}
+		if(module_exists(node)){	
+        $form['publishing_options'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Publishing options'),
+        '#description' => t('Options for the Publishing options fieldset on the node form.'),
+         );
+
+	    $form['publishing_options']['override_node_options_pocollapsible'] = array(
+		'#type' => 'checkbox',
+		'#title' => t('Publishing options collapsible'),
+		'#default_value' => variable_get('override_node_options_pocollapsible', 1),
+		);
+		$form['publishing_options']['override_node_options_pocollapsed'] = array(
+		'#type' => 'checkbox',
+		'#title' => t('Publishing options collapsed by default'),
+		'#default_value' => variable_get('override_node_options_pocollapsed', 1),
+		);
+		}
+		
+		return system_settings_form($form);
+		
 }
 
 /**
  * Implementation of hook_form_alter().
  */
-function override_node_options_form_alter($form_id, &$form) {
+function override_node_options_form_alter(&$form, $form_state, $form_id) {
   // Allow users with 'override node publishing options' to change node
   // options. Taken from node_form_array().
   // TODO: Once in core, remove adminster nodes check.
-  if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && user_access('override node publishing options') && !user_access('administer nodes')) {
+  if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && !user_access('administer nodes')) {
     $node = $form['#node'];
-    $form['options'] = array('#type' => 'fieldset', '#title' => t('Publishing options'), '#collapsible' => TRUE, '#collapsed' => TRUE, '#weight' => 25);
+    $form['options'] = array('#type' => 'fieldset', '#title' => t('Publishing options'), '#collapsible' => variable_get('override_node_options_collapsible', 1), '#collapsed' => variable_get('override_node_options_collapsed', 1), '#weight' => 25);
+    if(user_access('Display published option')){
     $form['options']['override_publishing_status']   = array('#type' => 'checkbox', '#title' => t('Published'), '#default_value' => $node->status);
+    }
+    if(user_access('Display promote to front page option')){
     $form['options']['override_publishing_promote']  = array('#type' => 'checkbox', '#title' => t('Promoted to front page'), '#default_value' => $node->promote);
+    }
+    if(user_access('Display sticky option')){
     $form['options']['override_publishing_sticky']   = array('#type' => 'checkbox', '#title' => t('Sticky at top of lists'), '#default_value' => $node->sticky);
+    }
+    if(user_access('Display revision option')){
     $form['options']['override_publishing_revision'] = array('#type' => 'checkbox', '#title' => t('Create new revision'), '#default_value' => $node->revision);
+    }
+    if(user_access('Display authored on option')){
+     $form['options']['override_authored_on'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Authored on'),
+          '#maxlength' => 25,
+          '#default_value' => $node->date,
+          '#description' => t('Format: %time. Leave blank to use the time of form submission.', array('%time' => !empty($node->date) ? $node->date : format_date($node->created, 'custom', 'Y-m-d H:i:s O'))),
+        );
+
+    }
+  }
+
+   if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id) {
+  	if(module_exists(node)){ 	
+  		$form['options']['#collapsible'] = variable_get('override_node_options_pocollapsible', 1);
+  		$form['options']['#collapsed'] = variable_get('override_node_options_pocollapsed', 1);
+  	}
+  	if(module_exists(upload)){
+  		$form['attachments']['#collapsible'] = variable_get('override_node_options_facollapsible', 1);
+  		$form['attachments']['#collapsed'] = variable_get('override_node_options_facollapsed', 1);
+  	}
+  	if(module_exists(scheduler)){
+  		$form['scheduler_settings']['#collapsible'] = variable_get('override_node_options_sscollapsible', 1);
+  		$form['scheduler_settings']['#collapsed'] = variable_get('override_node_options_sscollapsed', 1);
+  	}
   }
 }
+
 
 /**
  * Implementation of hook_nodeapi().
  */
 function override_node_options_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
   switch ($op) {
-    case 'submit':
+    case 'presave':
       // Allow users with 'override node publishing options' to change node
       // options.
       // TODO: Once in core, remove adminster nodes check.
-      if (user_access('override node publishing options') && !user_access('administer nodes')) {
+      if (!user_access('administer nodes')) {
         $keys = array(
           'override_publishing_status' => 'status',
           'override_publishing_promote' => 'promote',
           'override_publishing_sticky' => 'sticky',
           'override_publishing_revision' => 'revision',
+          
         );
         foreach ($keys as $override_key => $real_key) {
           if (isset($node->$override_key)) {
             $node->$real_key = $node->$override_key;
           }
         }
+        if(user_access('Display authored on option')){
+        // Node creation date override
+        if ($node->date !== $node->override_authored_on || !empty($node->override_authored_on)) {
+         $node->created = !empty($node->override_authored_on) ? strtotime($node->override_authored_on) : time();
+       }
+        }
+        
       }
       break;
   }
