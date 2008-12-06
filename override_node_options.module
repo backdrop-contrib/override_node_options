@@ -11,9 +11,23 @@
  * Implementation of hook_perm().
  */
 function override_node_options_perm() {
-  return array('Display published option','Display promote to front page option','Display sticky option','Display revision option','Display authored on option');
+$results = db_query("SELECT type FROM {node_type}");
+
+while ($value = db_result($results)) {
+   $perms[] = 'override ' . $value . ' published option';
+   $perms[] = 'override ' . $value . ' promote to front page option';
+   $perms[] = 'override ' . $value . ' sticky option';
+   $perms[] = 'override ' . $value . ' revision option';
+   $perms[] = 'override ' . $value . ' authored on option';
+   $perms[] = 'override ' . $value . ' authored by option';
+}
+  return $perms;
 }
 
+/**
+ * Implementation of hook_menu().
+ * This setups up the administration menu link.
+ */
 function override_node_options_menu() {
   $items = array();
   $items['admin/settings/override_node_options'] = array(
@@ -27,6 +41,11 @@ function override_node_options_menu() {
      return $items;
 }
 
+
+/**
+ * Implementation of hook_admin_settings().
+ * These settings are to control the collapsed and collapsible settings.
+ */
 function override_node_options_admin_settings() {
 	    if(module_exists(upload)){
 	    $form['attachments'] = array(
@@ -91,26 +110,66 @@ function override_node_options_admin_settings() {
  * Implementation of hook_form_alter().
  */
 function override_node_options_form_alter(&$form, $form_state, $form_id) {
-  // Allow users with 'override node publishing options' to change node
-  // options. Taken from node_form_array().
-  // TODO: Once in core, remove adminster nodes check.
   if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && !user_access('administer nodes')) {
     $node = $form['#node'];
-    $form['options'] = array('#type' => 'fieldset', '#title' => t('Publishing options'), '#collapsible' => variable_get('override_node_options_collapsible', 1), '#collapsed' => variable_get('override_node_options_collapsed', 1), '#weight' => 25);
-    if(user_access('Display published option')){
-    $form['options']['override_publishing_status']   = array('#type' => 'checkbox', '#title' => t('Published'), '#default_value' => $node->status);
+    $form['options'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Publishing options'),
+          '#collapsible' => variable_get('override_node_options_collapsible', 1),
+          '#collapsed' => variable_get('override_node_options_collapsed', 1), '#weight' => 25);
+    
+    if(user_access('override ' . $form['type']['#value'] . ' published option')){
+          $form['options']['override_publishing_status']   = array(
+          '#type' => 'checkbox',
+          '#title' => t('Published'),
+          '#default_value' => $node->status);
     }
-    if(user_access('Display promote to front page option')){
-    $form['options']['override_publishing_promote']  = array('#type' => 'checkbox', '#title' => t('Promoted to front page'), '#default_value' => $node->promote);
+    
+    if(user_access('override ' . $form['type']['#value'] . ' promote to front page option')){
+          $form['options']['override_publishing_promote']  = array(
+          '#type' => 'checkbox',
+          '#title' => t('Promoted to front page'),
+          '#default_value' => $node->promote);
     }
-    if(user_access('Display sticky option')){
-    $form['options']['override_publishing_sticky']   = array('#type' => 'checkbox', '#title' => t('Sticky at top of lists'), '#default_value' => $node->sticky);
+    
+    if(user_access('override ' . $form['type']['#value'] . ' sticky option')){
+          $form['options']['override_publishing_sticky']   = array(
+          '#type' => 'checkbox', '#title' => t('Sticky at top of lists'),
+          '#default_value' => $node->sticky);
     }
-    if(user_access('Display revision option')){
-    $form['options']['override_publishing_revision'] = array('#type' => 'checkbox', '#title' => t('Create new revision'), '#default_value' => $node->revision);
+    
+    if(user_access('override ' . $form['type']['#value'] . ' revision option')){
+          $form['options']['override_publishing_revision'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Create new revision'),
+          '#default_value' => $node->revision);
     }
-    if(user_access('Display authored on option')){
-     $form['options']['override_authored_on'] = array(
+    
+    $form['author'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Authoring information'),
+          '#collapsible' => variable_get('override_node_options_collapsible', 1),
+          '#collapsed' => variable_get('override_node_options_collapsed', 1), '#weight' => 20);
+    
+    if(user_access('override ' . $form['type']['#value'] . ' authored by option')){
+          $form['author']['override_authored_by'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Authored by'),
+          '#maxlength' => 60,
+          '#default_value' => $node->name ? $node->name : '',
+          '#weight' => -1,
+          '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+          );
+          
+          // User must have permission 'access user profiles' for autocomplete
+        if (user_access('access user profiles')) {
+          $form['author']['override_authored_by']['#autocomplete_path'] = 'user/autocomplete';
+        }
+
+        }
+    
+    if(user_access('override ' . $form['type']['#value'] . ' authored on option')){
+          $form['author']['override_authored_on'] = array(
           '#type' => 'textfield',
           '#title' => t('Authored on'),
           '#maxlength' => 25,
@@ -152,20 +211,30 @@ function override_node_options_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
           'override_publishing_status' => 'status',
           'override_publishing_promote' => 'promote',
           'override_publishing_sticky' => 'sticky',
-          'override_publishing_revision' => 'revision',
-          
+          'override_publishing_revision' => 'revision'          
         );
         foreach ($keys as $override_key => $real_key) {
           if (isset($node->$override_key)) {
             $node->$real_key = $node->$override_key;
           }
         }
-        if(user_access('Display authored on option')){
+        if(user_access('override authored on option')){
         // Node creation date override
         if ($node->date !== $node->override_authored_on || !empty($node->override_authored_on)) {
          $node->created = !empty($node->override_authored_on) ? strtotime($node->override_authored_on) : time();
-       }
         }
+        }
+        if ($node->name !== $node->override_authored_by) {
+          if (!empty($node->override_authored_by)) {
+            $account = user_load(array('name' => $node->override_authored_by));
+            $node->uid = $account->uid;
+          }
+          else {
+            $node->uid = 0;
+          }
+        }
+
+        
         
       }
       break;
