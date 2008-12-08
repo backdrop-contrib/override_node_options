@@ -83,6 +83,26 @@ function override_node_options_admin_settings() {
 		'#default_value' => variable_get('override_node_options_sscollapsed', 1),
 		);
 		}
+		
+		if(module_exists(node)){	
+        $form['authoring_information'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Authoring information'),
+        '#description' => t('Options for the Authoring information fieldset on the node form.'),
+         );
+
+	    $form['authoring_information']['override_node_options_aicollapsible'] = array(
+		'#type' => 'checkbox',
+		'#title' => t('Authoring information collapsible'),
+		'#default_value' => variable_get('override_node_options_aicollapsible', 1),
+		);
+		$form['authoring_information']['override_node_options_aicollapsed'] = array(
+		'#type' => 'checkbox',
+		'#title' => t('Authoring information collapsed by default'),
+		'#default_value' => variable_get('override_node_options_aicollapsed', 1),
+		);
+		}
+		
 		if(module_exists(node)){	
         $form['publishing_options'] = array(
         '#type' => 'fieldset',
@@ -112,12 +132,15 @@ function override_node_options_admin_settings() {
 function override_node_options_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && !user_access('administer nodes')) {
     $node = $form['#node'];
+    
+    if(user_access('override ' . $form['type']['#value'] . ' published option') || user_access('override ' . $form['type']['#value'] . ' promote to front page option') || user_access('override ' . $form['type']['#value'] . ' sticky option') || user_access('override ' . $form['type']['#value'] . ' revision option')){
+    
     $form['options'] = array(
           '#type' => 'fieldset',
           '#title' => t('Publishing options'),
           '#collapsible' => variable_get('override_node_options_collapsible', 1),
           '#collapsed' => variable_get('override_node_options_collapsed', 1), '#weight' => 25);
-    
+    }
     if(user_access('override ' . $form['type']['#value'] . ' published option')){
           $form['options']['override_publishing_status']   = array(
           '#type' => 'checkbox',
@@ -144,13 +167,13 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
           '#title' => t('Create new revision'),
           '#default_value' => $node->revision);
     }
-    
+    if(user_access('override ' . $form['type']['#value'] . ' authored by option') || user_access('override ' . $form['type']['#value'] . ' authored on option')){
     $form['author'] = array(
           '#type' => 'fieldset',
           '#title' => t('Authoring information'),
           '#collapsible' => variable_get('override_node_options_collapsible', 1),
           '#collapsed' => variable_get('override_node_options_collapsed', 1), '#weight' => 20);
-    
+    }
     if(user_access('override ' . $form['type']['#value'] . ' authored by option')){
           $form['author']['override_authored_by'] = array(
           '#type' => 'textfield',
@@ -184,6 +207,10 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
   	if(module_exists(node)){ 	
   		$form['options']['#collapsible'] = variable_get('override_node_options_pocollapsible', 1);
   		$form['options']['#collapsed'] = variable_get('override_node_options_pocollapsed', 1);
+  	}
+  	if(module_exists(node)){ 	
+  		$form['options']['#collapsible'] = variable_get('override_node_options_aicollapsible', 1);
+  		$form['options']['#collapsed'] = variable_get('override_node_options_aicollapsed', 1);
   	}
   	if(module_exists(upload)){
   		$form['attachments']['#collapsible'] = variable_get('override_node_options_facollapsible', 1);
