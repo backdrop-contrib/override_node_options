@@ -132,7 +132,12 @@ function override_node_options_admin_settings() {
 function override_node_options_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && !user_access('administer nodes')) {
     $node = $form['#node'];
-    
+
+    /* make sure the preview shows the correct values */
+    if($node->op == 'Preview') {
+      _override_node_options_apply_keys($node);
+    }
+
     if(user_access('override ' . $form['type']['#value'] . ' published option') || user_access('override ' . $form['type']['#value'] . ' promote to front page option') || user_access('override ' . $form['type']['#value'] . ' sticky option') || user_access('override ' . $form['type']['#value'] . ' revision option')){
     
     $form['options'] = array(
@@ -224,6 +229,28 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
 }
 
 
+function _override_node_options_apply_keys(&$node){
+
+    $keys = array(
+          'override_publishing_status' => 'status',
+          'override_publishing_promote' => 'promote',
+          'override_publishing_sticky' => 'sticky',
+          'override_publishing_revision' => 'revision'
+        );
+        foreach ($keys as $override_key => $real_key) {
+          if (isset($node->$override_key)) {
+            $node->$real_key = $node->$override_key;
+          }
+           else {
+              $options = variable_get('node_options_' . $node->type, NULL);
+              foreach($options as $default){
+                  $node->$default = TRUE;
+              }
+          }
+        }
+
+}
+
 /**
  * Implementation of hook_nodeapi().
  */
@@ -234,24 +261,16 @@ function override_node_options_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       // options.
       // TODO: Once in core, remove adminster nodes check.
       if (!user_access('administer nodes')) {
-        $keys = array(
-          'override_publishing_status' => 'status',
-          'override_publishing_promote' => 'promote',
-          'override_publishing_sticky' => 'sticky',
-          'override_publishing_revision' => 'revision'          
-        );
-        foreach ($keys as $override_key => $real_key) {
-          if (isset($node->$override_key)) {
-            $node->$real_key = $node->$override_key;
-          }
-        }
+
+        _override_node_options_apply_keys($node);
+
         if(user_access('override authored on option')){
         // Node creation date override
         if ($node->date !== $node->override_authored_on || !empty($node->override_authored_on)) {
          $node->created = !empty($node->override_authored_on) ? strtotime($node->override_authored_on) : time();
         }
         }
-        if ($node->name !== $node->override_authored_by) {
+        if (isset($node->override_authored_by) && ($node->name !== $node->override_authored_by)) {
           if (!empty($node->override_authored_by)) {
             $account = user_load(array('name' => $node->override_authored_by));
             $node->uid = $account->uid;
