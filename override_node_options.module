@@ -237,17 +237,20 @@ function _override_node_options_apply_keys(&$node){
           'override_publishing_sticky' => 'sticky',
           'override_publishing_revision' => 'revision'
         );
+
+        $options = variable_get('node_options_' . $node->type, NULL);
+        foreach ($options as $option){
+            $default->$option = $option;
+        }
+
         foreach ($keys as $override_key => $real_key) {
           if (isset($node->$override_key)) {
             $node->$real_key = $node->$override_key;
           }
-           else {
-              $options = variable_get('node_options_' . $node->type, NULL);
-              foreach($options as $default){
-                  $node->$default = TRUE;
+           elseif (isset($default->$real_key)) {
+                  $node->$real_key = TRUE;
+                  }
               }
-          }
-        }
 
 }
 
