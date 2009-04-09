@@ -1,5 +1,5 @@
 <?php
-// $Id$
+// $Id:
 
 /**
  * @file
@@ -143,8 +143,8 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     $form['options'] = array(
           '#type' => 'fieldset',
           '#title' => t('Publishing options'),
-          '#collapsible' => variable_get('override_node_options_collapsible', 1),
-          '#collapsed' => variable_get('override_node_options_collapsed', 1), '#weight' => 25);
+          '#collapsible' => variable_get('override_node_options_pocollapsible', 1),
+          '#collapsed' => variable_get('override_node_options_pocollapsed', 1), '#weight' => 25);
     }
     if(user_access('override ' . $form['type']['#value'] . ' published option')){
           $form['options']['override_publishing_status']   = array(
@@ -176,15 +176,15 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     $form['author'] = array(
           '#type' => 'fieldset',
           '#title' => t('Authoring information'),
-          '#collapsible' => variable_get('override_node_options_collapsible', 1),
-          '#collapsed' => variable_get('override_node_options_collapsed', 1), '#weight' => 20);
+          '#collapsible' => variable_get('override_node_options_aicollapsible', 1),
+          '#collapsed' => variable_get('override_node_options_aicollapsed', 1), '#weight' => 20);
     }
     if(user_access('override ' . $form['type']['#value'] . ' authored by option')){
           $form['author']['override_authored_by'] = array(
           '#type' => 'textfield',
           '#title' => t('Authored by'),
           '#maxlength' => 60,
-          '#default_value' => $node->name ? $node->name : '',
+          '#default_value' => $node->name,
           '#weight' => -1,
           '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
           );
@@ -230,7 +230,6 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
 
 
 function _override_node_options_apply_keys(&$node){
-
     $keys = array(
           'override_publishing_status' => 'status',
           'override_publishing_promote' => 'promote',
@@ -239,8 +238,10 @@ function _override_node_options_apply_keys(&$node){
         );
 
         $options = variable_get('node_options_' . $node->type, NULL);
+        if($options){
         foreach ($options as $option){
             $default->$option = $option;
+        }
         }
 
         foreach ($keys as $override_key => $real_key) {
@@ -251,6 +252,23 @@ function _override_node_options_apply_keys(&$node){
                   $node->$real_key = TRUE;
                   }
               }
+
+        // Node creation date override
+        if ($node->date !== $node->override_authored_on || !empty($node->override_authored_on)) {
+         $node->date = $node->override_authored_on;
+         $node->created = !empty($node->override_authored_on) ? strtotime($node->override_authored_on) : time();
+        }
+        
+        
+          if (!empty($node->override_authored_by)) {
+            $account = user_load(array('name' => $node->override_authored_by));
+            $node->name = $account->name;
+            $node->uid = $account->uid;
+          }
+          elseif ($node->override_authored_by == "")  {
+            $node->name = "";
+            $node->uid = 0;
+          }
 
 }
 
@@ -266,25 +284,7 @@ function override_node_options_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       if (!user_access('administer nodes')) {
 
         _override_node_options_apply_keys($node);
-
-        if(user_access('override authored on option')){
-        // Node creation date override
-        if ($node->date !== $node->override_authored_on || !empty($node->override_authored_on)) {
-         $node->created = !empty($node->override_authored_on) ? strtotime($node->override_authored_on) : time();
-        }
-        }
-        if (isset($node->override_authored_by) && ($node->name !== $node->override_authored_by)) {
-          if (!empty($node->override_authored_by)) {
-            $account = user_load(array('name' => $node->override_authored_by));
-            $node->uid = $account->uid;
-          }
-          else {
-            $node->uid = 0;
-          }
-        }
-
-        
-        
+ 
       }
       break;
   }
