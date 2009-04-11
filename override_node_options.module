@@ -265,7 +265,7 @@ function _override_node_options_apply_keys(&$node){
             $node->name = $account->name;
             $node->uid = $account->uid;
           }
-          elseif ($node->override_authored_by == "")  {
+          elseif ($node->override_authored_by == "" && user_access('override ' . $node->type . ' authored by option'))  {
             $node->name = "";
             $node->uid = 0;
           }
