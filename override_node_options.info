@@ -1,5 +1,7 @@
-; $Id: 
-name = Override Node Publishing Options
+; $Id$
+name = Override node options
 description = "Allow non-admins to override the default publishing options for nodes they can edit."
-core = 6.x
-
+core = 7.x
+files[] = override_node_options.module
+files[] = override_node_options.install
+files[] = override_node_options.test
