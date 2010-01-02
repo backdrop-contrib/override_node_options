@@ -11,27 +11,50 @@
  * Implements hook_permisson().
  */
 function override_node_options_permission() {
-  $node_types = node_get_type_names();
-  $options = array(
-    'published',
-    'promote to front page',
-    'sticky',
-    'revision',
-    'authored on',
-    'authored by',
-  );
-  foreach ($node_types as $node_type) {
-    foreach ($options as $option) {
+  $permissions = array();
 
-    }
-    $perms[] = 'override ' . $node_type . ' published option';
-    $perms[] = 'override ' . $node_type . ' promote to front page option';
-    $perms[] = 'override ' . $node_type . ' sticky option';
-    $perms[] = 'override ' . $node_type . ' revision option';
-    $perms[] = 'override ' . $node_type . ' authored on option';
-    $perms[] = 'override ' . $node_type . ' authored by option';
+  // Generate override node permissions for all applicable node types.
+  foreach (node_permissions_get_configured_types() as $type) {
+    $permissions += override_node_options_list_permissions($type);
   }
-  return $perms;
+
+  return $permissions;
+}
+
+/**
+ * Helper function to generate override node permission list for a given type.
+ *
+ * @param $type
+ *   The machine-readable name of the node type.
+ * @return
+ *   An array of permission names and description.
+ */
+function override_node_options_list_permissions($type) {
+  $name = node_type_get_name($type);
+  $type = check_plain($type);
+
+  $permissions = array(
+    "override $type published option" => array(
+      'title' => t('Override %type_name published option.', array('%type_name' => $name)),
+    ),
+    "override $type promote to front page option" => array(
+      'title' => t('Override %type_name promote to front page option.', array('%type_name' => $name)),
+    ),
+    "override $type sticky option" => array(
+      'title' => t('Override %type_name sticky option.', array('%type_name' => $name)),
+    ),
+    "override $type revision option" => array(
+      'title' => t('Override %type_name revision option.', array('%type_name' => $name)),
+    ),
+    "override $type authored on option" => array(
+      'title' => t('Override %type_name authored on option.', array('%type_name' => $name)),
+    ),
+    "override $type authored by option" => array(
+      'title' => t('Override %type_name authored by option.', array('%type_name' => $name)),
+    ),
+  );
+
+  return $permissions;
 }
 
 /**
