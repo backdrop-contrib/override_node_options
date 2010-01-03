@@ -96,7 +96,7 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
  */
 function override_node_options_validate_node($form, &$form_state) {
   // Validate the "authored by" field.
-  if (!empty($form_state['values']['name']) && !($account = user_load(array('name' => $form_state['values']['name'])))) {
+  if (!empty($form_state['values']['name']) && !($account = user_load_by_name($form_state['values']['name']))) {
     // The use of empty() is mandatory in the context of usernames
     // as the empty string denotes the anonymous user. In case we
     // are dealing with an anonymous user we set the user ID to 0.
@@ -114,7 +114,7 @@ function override_node_options_validate_node($form, &$form_state) {
  */
 function override_node_options_submit_node($form, &$form_state) {
   // Populate the "authored by" field.
-  if ($account = user_load(array('name' => $form_state['values']['name']))) {
+  if ($account = user_load_by_name($form_state['values']['name'])) {
     $form_state['values']['uid'] = $account->uid;
   }
   else {
