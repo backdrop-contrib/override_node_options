@@ -45,6 +45,9 @@ function override_node_options_list_permissions($type) {
     "override $type revision option" => array(
       'title' => t('Override %type_name revision option.', array('%type_name' => $name)),
     ),
+    "enter $type revision log entry" => array(
+      'title' => t('Enter %type_name revision log entry.', array('%type_name' => $name)),
+    ),
     "override $type authored on option" => array(
       'title' => t('Override %type_name authored on option.', array('%type_name' => $name)),
     ),
@@ -63,6 +66,9 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
   if (!empty($form['#node_edit_form']) && !user_access('administer nodes')) {
     // Get a copy of the current node object.
     $node = $form['#node'];
+    
+    // Add access to the 'Revision information: log message' field
+    $form['revision_information']['log']['#access'] = user_access('enter ' . $node->type . ' revision log entry');
 
     // Add access to the 'Revision information' fieldset.
     $form['revision_information']['revision']['#access'] = user_access('override ' . $node->type . ' revision option');
