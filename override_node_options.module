@@ -77,7 +77,7 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     // Add access to the 'Authoring information' fieldset.
     $form['author']['name']['#access'] = user_access('override ' . $node->type . ' authored by option');
     $form['author']['date']['#access'] = user_access('override ' . $node->type . ' authored on option');
-    if (key_exists('#access', $form['author'])) {
+    if (array_key_exists('#access', $form['author'])) {
       $form['author']['#access'] |= element_get_visible_children($form['author']);
     }
     else {
@@ -87,8 +87,8 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     // Add access to the 'Publishing options' fieldset.
     $form['options']['status']['#access'] = user_access('override ' . $node->type . ' published option');
     $form['options']['promote']['#access'] = user_access('override ' . $node->type . ' promote to front page option');
-    $form['options']['sticky']['#access'] = user_access('override ' . $node->type . ' sticky option');    
-    if (key_exists('#access', $form['options'])) {
+    $form['options']['sticky']['#access'] = user_access('override ' . $node->type . ' sticky option');
+    if (array_key_exists('#access', $form['options'])) {
       $form['options']['#access'] |= element_get_visible_children($form['options']);
     }
     else {
