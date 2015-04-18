@@ -99,6 +99,10 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     if ($form['author']['name']['#access']) {
       $form['#submit'][] = 'override_node_options_submit_node';
     }
+
+    if (!empty($form['#node_edit_form']) && !user_access('administer nodes')) {
+      $form['author']['#attached']['js'][1]['data']['anonymous'] = $form['author']['name']['#default_value'];
+    }
   }
 }
 
