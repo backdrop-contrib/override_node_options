@@ -73,7 +73,7 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
   if (!empty($form['#node_edit_form']) && !user_access('administer nodes')) {
     // Get a copy of the current node object.
     $node = $form['#node'];
-    
+
     // Add access to the 'Revision information: log message' field
     $form['revision_information']['log']['#access'] = user_access('enter ' . $node->type . ' revision log entry');
 
@@ -90,7 +90,7 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     else {
       $form['author']['#access'] = element_get_visible_children($form['author']);
     }
-    
+
     // Add access to the 'Publishing options' fieldset.
     $form['options']['status']['#access'] = user_access('override ' . $node->type . ' published option');
     $form['options']['promote']['#access'] = user_access('override ' . $node->type . ' promote to front page option');
@@ -101,12 +101,12 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     else {
       $form['options']['#access'] = element_get_visible_children($form['options']);
     }
-    
+
     // Add access to the 'Comment settings' fieldset.
     if (module_exists('comment') && isset($form['comment_settings'])) {
       $form['comment_settings']['#access'] |= user_access('override ' . $node->type . ' comment setting option');
     }
-    
+
     // @todo Remove when http://drupal.org/node/683630 is fixed.
     if ($form['author']['name']['#access']) {
       $form['#submit'][] = 'override_node_options_submit_node';
