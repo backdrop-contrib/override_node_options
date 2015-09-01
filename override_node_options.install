@@ -10,7 +10,7 @@
  */
 function override_node_options_install() {
   db_update('system')->fields(array(
-    'weight' => -1
+    'weight' => 1
   ))
   ->condition('name', 'override_node_options', '=')
   ->execute();
@@ -32,4 +32,17 @@ function override_node_options_update_7113() {
   ))
   ->condition('name', 'override_node_options', '=')
   ->execute();
+}
+
+/**
+ * Update the module weight.
+ */
+function override_node_options_update_7114() {
+  db_update('system')->fields(
+    array(
+      'weight' => 1,
+    )
+  )
+    ->condition('name', 'override_node_options', '=')
+    ->execute();
 }
