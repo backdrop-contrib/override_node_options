@@ -25,7 +25,7 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Assert that fields in a node were updated to certail values.
+   * Assert that fields in a node were updated to certain values.
    *
    * @param $node
    *   The node object to check (will be reloaded from the database).
