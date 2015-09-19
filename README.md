@@ -45,5 +45,5 @@ Credits
 This module was originally written for Drupal by Oliver Davies
 (https://www.drupal.org/u/opdavies), and was ported to Backdrop CMS by Jen Lampton (https://www.drupal.org/u/jenlampton).
 
-Port to Backdrop sponsored by (America's Best Bootfiters)[http://www.bootfitters.com/], and (Masterfit Enterprises Inc.)[http://masterfitinc.com]
+Port to Backdrop sponsored by [America's Best Bootfiters](http://www.bootfitters.com), and [Masterfit Enterprises Inc.](http://masterfitinc.com)
 
