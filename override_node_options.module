@@ -54,6 +54,9 @@ function override_node_options_list_permissions($type) {
     "override $type authored by option" => array(
       'title' => t('Override %type_name authored by option.', array('%type_name' => $name)),
     ),
+    "override $type URL alias" => array(
+      'title' => t('Override %type_name URL alias', array('%type_name' => $name)),
+    ),
   );
   if (module_exists('comment')) {
     $permissions += array(
@@ -115,7 +118,20 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     if (!empty($form['#node_edit_form']) && !user_access('administer nodes')) {
       $form['author']['#attached']['js'][1]['data']['anonymous'] = $form['author']['name']['#default_value'];
     }
+
+    // Fire after_build function for some overrides that will be overriden if set at this stage
+    $form['#after_build'][] = 'override_node_options_after_build';
   }
+}
+
+/*
+ * Alter the node form after form_alter functions have been called
+ */
+function override_node_options_after_build($form, &$form_state) {
+  // Add additional access to the 'Path' fieldset.
+  $form['path']['#access'] = (user_access('create url aliases') || user_access('administer url aliases') || user_access('override ' . $form['#node']->type . ' URL alias'));
+
+  return $form;
 }
 
 /**
