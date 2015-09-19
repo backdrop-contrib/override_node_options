@@ -228,6 +228,14 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     $form['options']['status']['#access'] = user_access('override ' . $node->type . ' published option') || user_access('override all published option');
     $form['options']['promote']['#access'] = user_access('override ' . $node->type . ' promote to front page option') || user_access('override all promote to front page option');
     $form['options']['sticky']['#access'] = user_access('override ' . $node->type . ' sticky option') || user_access('override all sticky option');
+
+    // If access is granted for promote or sticky, show (but disable) status.
+      // This keeps core's JS working, and correctly populates the vertical tab.
+    if ($form['options']['status']['#access'] == FALSE && ($form['options']['promote']['#access'] || $form['options']['sticky']['#access'])) {
+      $form['options']['status']['#access'] = TRUE;
+      $form['options']['status']['#disabled'] = TRUE;
+    }
+
     if (array_key_exists('#access', $form['options'])) {
       $form['options']['#access'] |= element_get_visible_children($form['options']);
     }
