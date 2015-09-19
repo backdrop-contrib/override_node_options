@@ -1,8 +1,11 @@
 Override Node Options
 ======================
 
-The Override Node Options module allows permissions to be set to each field
-within the Authoring information and Publishing options field sets on the node
+Allows granular permissions for most administrative tasks on the node form.
+
+The Override Node Options module allows granular permissions for most
+administrative tasks on the node form. Permissions for each task within the
+Authoring information, Publishing options, Comment settings, and URL Path  field sets on the node
 form.
 
 
@@ -41,3 +44,6 @@ Credits
 
 This module was originally written for Drupal by Oliver Davies
 (https://www.drupal.org/u/opdavies), and was ported to Backdrop CMS by Jen Lampton (https://www.drupal.org/u/jenlampton).
+
+Port to Backdrop sponsored by (America's Best Bootfiters)[http://www.bootfitters.com/], and (Masterfit Enterprises Inc.)[http://masterfitinc.com]
+
