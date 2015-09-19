@@ -16,7 +16,7 @@ function override_node_options_permission() {
     ),
   );
 
-  $show_perms = variable_get('override_node_options_permissions', array('general', 'specific'));
+  $show_perms = config_get('override_node_options.settings', 'permissions');
   if (in_array('general', $show_perms, TRUE)) {
     $permissions += array(
       'override all published option' => array(
@@ -117,87 +117,15 @@ function override_node_options_list_permissions($type, $name = NULL) {
 function override_node_options_menu() {
   $items['admin/config/content/override-node-options'] = array(
     'title' => 'Override Node Options Settings',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('override_node_options_settings_form'),
     'access arguments' => array('administer override node options'),
     'type' => MENU_NORMAL_ITEM,
+    'file' => 'override_node_options.admin.inc',
   );
 
   return $items;
 }
-
-/**
- * Settings form.
- */
-function override_node_options_settings_form($form, &$form_values) {
-  $form = array();
-
-  $form['override_node_options_permissions'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Provide the following permissions:'),
-    '#options' => array(
-      'general' => t('Permissions that work Generally, for all node types'),
-      'specific' => t('Permissions that work specifically, for each individual node type'),
-    ),
-    '#default_value' => variable_get('override_node_options_permissions', array('general', 'specific')),
-  );
-
-  $form['#submit'][] = 'override_node_options_settings_form_submit';
-
-  return system_settings_form($form);
-}
-
-/**
- * Submit handler for settings form.
- */
-function override_node_options_settings_form_submit(&$form, &$form_state) {
-  $role_names = user_roles();
-  $revoke = array();
-
-  if (!in_array('specific', $form_state['values']['override_node_options_permissions'], TRUE)) {
-
-    $permissions = array();
-    foreach (node_permissions_get_configured_types() as $type) {
-      $permissions += override_node_options_list_permissions($type);
-    }
-
-    foreach ($permissions as $permission => $description) {
-      $revoke[$permission] = FALSE;
-    }
-
-    // Be sure to clear the cache.
-    cache_clear_all();
-  }
-
-  if (!in_array('general', $form_state['values']['override_node_options_permissions'], TRUE)) {
-    $revoke = array(
-      'override all published option' => FALSE,
-      'override all promote to front page option' => FALSE,
-      'override all sticky option' => FALSE,
-      'override all revision option' => FALSE,
-      'enter all revision log entry' => FALSE,
-      'override all authored on option' => FALSE,
-      'override all authored by option' => FALSE,
-    );
-  }
-
-  // Any specific grants not used anymore need to be deleted.
-  if (!empty($revoke)) {
-    foreach ($role_names as $rid => $name) {
-      user_role_change_permissions($rid, $revoke);
-    }
-  }
-
-  if (user_access('administer permissions')) {
-    $message = t('After changing this setting you must visit !permissions and double check access.', array('!permissions' => l(t('the permissions page'), 'admin/people/permissions', array('fragment' => 'module-override_node_options'))));
-  }
-  else {
-    $message = t('After changing this setting someone must visit the permissions page and double check access.');
-  }
-
-  drupal_set_message($message, 'warning');
-}
-
 
 /**
  * Implements hook_form_alter().
