@@ -33,7 +33,7 @@ Current Maintainers
 -------------------
 
 - Jen Lampton (https://github.com/jenlampton)
-- Oliver Davies (https://github.com/opdavies)
+- Seeking additional matintainers
 
 
 Credits
