@@ -36,7 +36,7 @@ Current Maintainers
 -------------------
 
 - Jen Lampton (https://github.com/jenlampton)
-- Seeking additional matintainers
+- Seeking additional maintainers
 
 
 Credits
