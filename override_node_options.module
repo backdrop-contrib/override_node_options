@@ -116,7 +116,7 @@ function override_node_options_list_permissions($type, $name = NULL) {
  */
 function override_node_options_menu() {
   $items['admin/config/content/override-node-options'] = array(
-    'title' => 'Override Node Options Settings',
+    'title' => 'Override Node Options',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('override_node_options_settings_form'),
     'access arguments' => array('administer override node options'),
@@ -131,7 +131,7 @@ function override_node_options_menu() {
  * Implements hook_form_alter().
  */
 function override_node_options_form_alter(&$form, $form_state, $form_id) {
-  if (!empty($form['#node_edit_form']) && !user_access('administer nodes')) {
+  if (strstr($form_id, '_node_form') && !user_access('administer nodes')) {
     // Get a copy of the current node object.
     $node = $form['#node'];
 
