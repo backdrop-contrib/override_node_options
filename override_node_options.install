@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Install, update and uninstall functions for the override_node_options module.
@@ -17,32 +16,11 @@ function override_node_options_install() {
 }
 
 /**
- * Implements hook_uninstall().
+ * Implements hook_update_last_removed().
  */
-function override_node_options_uninstall() {
-  db_query("DELETE FROM {variable} WHERE name LIKE 'override_node_options_%'");
-}
-
-/**
- * Implements hook_update_N().
- */
-function override_node_options_update_7113() {
-  db_update('system')->fields(array(
-    'weight' => -1
-  ))
-  ->condition('name', 'override_node_options', '=')
-  ->execute();
-}
-
-/**
- * Update the module weight.
- */
-function override_node_options_update_7114() {
-  db_update('system')->fields(
-    array(
-      'weight' => 1,
-    )
-  )
-    ->condition('name', 'override_node_options', '=')
-    ->execute();
+function override_node_options_update_last_removed() {
+  // We've removed the 1.x-1.x version of mymodule, including database updates.
+  // For the 1.x-2.x version of the module, the next update function would be
+  // mymodule_update_1200().
+  return 7114;
 }
