@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Unit tests for the override_node_options module.
@@ -9,14 +8,6 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
   protected $normal_user;
   protected $admin_user;
   protected $node;
-
-  public static function getInfo() {
-    return array(
-      'name' => 'Override node options',
-      'description' => 'Functional tests for overridding options on node forms.',
-      'group' => 'Override node options',
-    );
-  }
 
   public function setUp() {
     parent::setUp('override_node_options');

@@ -1,0 +1,5 @@
+[OverrideNodeOptionsTestCase]
+name = Override node options
+description = Functional tests for overridding options on node forms.
+group = Override node options
+file = override_node_options.test
