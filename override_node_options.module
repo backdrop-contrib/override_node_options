@@ -154,6 +154,7 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
 
     // Add access to the 'Publishing options' fieldset.
     $form['options']['status']['#access'] = user_access('override ' . $node->type . ' published option') || user_access('override all published option');
+    $form['options']['scheduled']['#access'] = user_access('override ' . $node->type . ' published option') || user_access('override all published option');
     $form['options']['promote']['#access'] = user_access('override ' . $node->type . ' promote to front page option') || user_access('override all promote to front page option');
     $form['options']['sticky']['#access'] = user_access('override ' . $node->type . ' sticky option') || user_access('override all sticky option');
 
