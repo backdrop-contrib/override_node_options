@@ -146,7 +146,7 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     $form['author']['name']['#access'] = user_access('override ' . $node->type . ' authored by option') || user_access('override all authored by option');
     $form['author']['date']['#access'] = user_access('override ' . $node->type . ' authored on option') || user_access('override all authored on option');
     if (array_key_exists('#access', $form['author'])) {
-      $form['author']['#access'] |= element_get_visible_children($form['author']);
+      $form['author']['#access'] |= (bool) element_get_visible_children($form['author']);
     }
     else {
       $form['author']['#access'] = element_get_visible_children($form['author']);
@@ -166,7 +166,7 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     }
 
     if (array_key_exists('#access', $form['options'])) {
-      $form['options']['#access'] |= element_get_visible_children($form['options']);
+      $form['options']['#access'] |= (bool) element_get_visible_children($form['options']);
     }
     else {
       $form['options']['#access'] = element_get_visible_children($form['options']);
