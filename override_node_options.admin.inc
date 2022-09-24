@@ -15,8 +15,8 @@ function override_node_options_settings_form($form, &$form_values) {
     '#type' => 'checkboxes',
     '#title' => t('Provide the following permissions:'),
     '#options' => array(
-      'general' => t('General permissions, across all node types'),
-      'specific' => t('Specific permissions, for each individual node type'),
+      'general' => t('General: one permission for all content types'),
+      'specific' => t('Specific: individual permissions - one for each content type'),
     ),
     '#default_value' => $show_perms,
   );
