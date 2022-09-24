@@ -1,5 +1,6 @@
 {
     "_config_name": "override_node_options.settings",
+    "_module": "override_node_options",
     "permissions": {
         "general": "general",
         "specific": 0

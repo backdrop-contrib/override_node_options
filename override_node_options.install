@@ -24,3 +24,16 @@ function override_node_options_update_last_removed() {
   // mymodule_update_1200().
   return 7114;
 }
+
+/**
+ * Converts Drupal 7 variables to config.
+ */
+function override_node_options_update_1000(&$sandbox){
+  $defaults = array('general', 'specific');
+
+  $config = config('override_node_options.settings');
+  $config->set('permissions', update_variable_get('override_node_options_permissions', $defaults));
+  $config->save();
+
+  update_variable_del('override_node_options_permissions');
+}

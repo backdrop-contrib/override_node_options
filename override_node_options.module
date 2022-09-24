@@ -6,6 +6,17 @@
  */
 
 /**
+ * Impelements hook_config_info().
+ */
+function override_node_options_config_info() {
+  $prefixes['override_node_options.settings'] = array(
+    'label' => t('Override Node Options'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
  * Implements hook_permisson().
  */
 function override_node_options_permission() {
