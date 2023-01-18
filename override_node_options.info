@@ -1,5 +1,5 @@
 type = module
-name = Override node options
+name = Override Node Options
 description = Allow non-admins to override the default options for nodes.
 backdrop = 1.x
 
